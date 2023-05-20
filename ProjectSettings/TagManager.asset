@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Environment
   - Enemy
+  - Ground
+  - Light
   layers:
   - Default
   - TransparentFX

@@ -14,10 +14,18 @@ public class EnemyAI : MonoBehaviour
     public float fadeInTime = 2f;
     public float fadeOutTime = 2f;
 
+    public int enemyHealth = 10;
+    public float duration = 1f;
+    private bool isDealingDamage = false;
+    public int damageAmount = 1;
+    LightRotation flashlight;
+    Color originalColor;
+
     private Coroutine fadeCoroutine;
     void Awake () {
         audioControl = FindObjectOfType<AudioController>();
         player = FindObjectOfType<PlayerController>();
+        flashlight = FindObjectOfType<LightRotation>();
     }
     // Start is called before the first frame update
     void Start()
@@ -27,7 +35,8 @@ public class EnemyAI : MonoBehaviour
         spRend = GetComponent<SpriteRenderer>();
         // Set sprite alpha value to 0
         Color col = spRend.color;
-        col.a = 0f;
+        originalColor = spRend.color;
+        col.a = 1f;
         spRend.color = col;
     }
 
@@ -39,21 +48,29 @@ public class EnemyAI : MonoBehaviour
         }
     }
     private void OnTriggerEnter2D(Collider2D other) {
+        // if (other.CompareTag("Light")) {
+        //     if (fadeCoroutine != null)
+        //     {
+        //         StopCoroutine(fadeCoroutine);
+        //     }
+        //     fadeCoroutine = StartCoroutine(FadeIn(spRend));
+        // }
         if (other.CompareTag("Light")) {
-            if (fadeCoroutine != null)
-            {
-                StopCoroutine(fadeCoroutine);
+            if (flashlight.onOff){
+                fadeCoroutine = StartCoroutine(ApplyDamageOverTime());
             }
-            fadeCoroutine = StartCoroutine(FadeIn(spRend));
         }
     }
     private void OnTriggerExit2D(Collider2D other) {
-        if (other.CompareTag("Light")) {
-            if (fadeCoroutine != null)
-            {
-                StopCoroutine(fadeCoroutine);
-            }
-            fadeCoroutine = StartCoroutine(FadeOut(spRend));
+        // if (other.CompareTag("Light")) {
+        //     if (fadeCoroutine != null)
+        //     {
+        //         StopCoroutine(fadeCoroutine);
+        //     }
+        //     fadeCoroutine = StartCoroutine(FadeOut(spRend));
+        // }
+        if (other.CompareTag("Light") && fadeCoroutine != null) {
+            StopCoroutine(fadeCoroutine);
         }
     }
 
@@ -142,5 +159,30 @@ public class EnemyAI : MonoBehaviour
             // Assign the new color to the image
             spRend.color = c;
         }
+    }
+    private System.Collections.IEnumerator ApplyDamageOverTime()
+    {
+        isDealingDamage = true;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            if (enemyHealth > 0)
+            {
+                enemyHealth -= 1;
+            }
+            if (enemyHealth == 0)
+            {
+                Destroy(gameObject);
+            }
+            spRend.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+            spRend.color = originalColor;
+            yield return new WaitForSeconds(0.1f);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        isDealingDamage = false;
     }
 }

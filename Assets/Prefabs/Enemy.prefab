@@ -166,6 +166,9 @@ MonoBehaviour:
   rb: {fileID: 6538100274573960739}
   fadeInTime: 2
   fadeOutTime: 1
+  enemyHealth: 10
+  duration: 3
+  damageAmount: 1
 --- !u!114 &6538100274573960750
 MonoBehaviour:
   m_ObjectHideFlags: 0
